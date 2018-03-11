@@ -12,16 +12,44 @@ class ViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
     }
-
-    override var representedObject: Any? {
-        didSet {
-        // Update the view, if already loaded.
-        }
-    }
-
-
 }
 
+class DraggableView: NSView {
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        let types = NSFilePromiseReceiver.readableDraggedTypes.map {
+            NSPasteboard.PasteboardType(rawValue: $0) }
+        registerForDraggedTypes(types)
+        registerForDraggedTypes([.png, .tiff])
+    }
+
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        super.draggingEntered(sender)
+        return .copy
+    }
+
+    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        return true
+    }
+
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        let pasteboard = sender.draggingPasteboard()
+
+        let typeStrs = pasteboard.types?
+            .map { $0.rawValue }
+            .joined(separator: "\n")
+        print("🔵 pasteboard.types: -----------------------------------")
+        print("\(typeStrs!) \n")
+
+        let objects = pasteboard
+            .readObjects(
+                forClasses: [NSFilePromiseReceiver.self],
+                options: nil)
+        print("🔵 objects: -----------------------------------")
+        print("\(objects!) \n")
+
+        return true
+    }
+}
